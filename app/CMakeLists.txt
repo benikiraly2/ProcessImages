@@ -1,0 +1,5 @@
+add_subdirectory(clients)
+add_subdirectory(exceptions)
+add_subdirectory(sockets)
+add_subdirectory(workers)
+add_subdirectory(server)
