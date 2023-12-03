@@ -2,7 +2,9 @@ set(MODULE_NAME "clients")
 
 set(
     PUBLIC_HEADERS
+        include/${MODULE_NAME}/IClient.hpp
         include/${MODULE_NAME}/Client.hpp
+        include/${MODULE_NAME}/ClientData.hpp
 )
 
 set(

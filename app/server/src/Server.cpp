@@ -76,12 +76,12 @@ void Server::startClientListener()
         }
         catch (const custom_exceptions::CustomException& e)
         {
-            std::cout << "EXCEPTION: " << e.what() << '\n';
+            std::cout << "CUSTOM EXCEPTION: " << e.what() << '\n';
             isStarted = false;
         }
-        catch(...)
+        catch(const std::exception& e)
         {
-            std::cout << "BAD EXCEPTION\n";
+            std::cout << "BAD EXCEPTION " << e.what() << '\n';
             isStarted = false;
             throw std::bad_exception();
         }
@@ -106,15 +106,15 @@ void Server::startClientWriter()
     {
         for (auto const& [clientFD, client] : users)
         {
-            n_clients::ClientDataSet readyDataSet = client->getReadyDataSet();
+            const n_clients::ClientDataSet& readyDataSet = client->getDataSet();
             if (not readyDataSet.empty())
             {
-                std::cout << "Sending ready data to: " << clientFD << "\n";
-                // send num of packets
+                std::cout << "Sending data to: " << clientFD << "\n";
                 for (auto revIt = readyDataSet.rbegin(); revIt != readyDataSet.rend(); revIt++)
                 {
                     serverSocket.write(clientFD, revIt->data);
                 }
+                client->readyNextDataSet();
             }
         }
     }

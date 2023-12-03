@@ -5,13 +5,6 @@
 #include <unistd.h>
 #include <string>
 
-namespace consts
-{
-
-constexpr int DATA_SIZE = 2048;
-
-}
-
 namespace n_socket
 {
 
@@ -36,8 +29,6 @@ private:
     int opt = 1;
     struct sockaddr_in address;
     socklen_t addressLength;
-
-    char data[consts::DATA_SIZE];
 };
 
 }
