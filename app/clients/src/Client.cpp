@@ -56,11 +56,7 @@ ClientDataSet Client::getReadyDataSet()
         readyDataSet.insert(*dataIt);
         previousTransactionId = dataIt->transactionId;
     }
-
-    for (auto eraseIt = dataSet.rbegin(); eraseIt != dataIt; eraseIt++)
-    {
-        dataSet.erase(*eraseIt);
-    }
+    dataSet.erase(dataIt.base(), dataSet.end());
 
     return readyDataSet;
 }
