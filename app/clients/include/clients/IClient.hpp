@@ -11,7 +11,7 @@ namespace n_clients
 class IClient
 {
     virtual const ClientFD& getFD() const = 0;
-    virtual int getTotalTransactions() = 0;
+    virtual int getTotalTransactions() const = 0;
     virtual void setTotalTransactions(int totalTransactions) = 0;
     
     virtual const ClientDataSet& getDataSet() const = 0;

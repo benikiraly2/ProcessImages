@@ -9,6 +9,7 @@
 #include "clients/Client.hpp"
 #include "sockets/Socket.hpp"
 #include "workers/Worker.hpp"
+#include "Timer.hpp"
 
 namespace n_server
 {
@@ -24,9 +25,9 @@ private:
     friend ServerWrapper;
     Server();
 
-    void startClientListener() noexcept(false);
-    void startClientReader() noexcept(false);
-    void startClientWriter() noexcept(false);
+    void clientListener() noexcept(false);
+    void clientReader() noexcept(false);
+    void clientWriter() noexcept(false);
     void close();
 
     bool isStarted{true};
@@ -34,7 +35,7 @@ private:
 
     std::vector<n_workers::Worker> workers;
     std::vector<std::thread> workerThreads;
-    std::vector<std::thread> clientThreads;
+    std::vector<timer::Timer> clientTimers;
     UserData users;
 };
 

@@ -21,13 +21,13 @@ public:
     ~Client();
     friend std::ostream& operator<<(std::ostream& os, const Client& client);
 
-    const ClientFD& getFD() const { return *clientFD; }
-    int getTotalTransactions() { return totalTransactions; }
-    void setTotalTransactions(int totalTransactions) { this->totalTransactions = totalTransactions; }
+    const ClientFD& getFD() const override { return *clientFD; }
+    int getTotalTransactions() const override { return totalTransactions; }
+    void setTotalTransactions(int totalTransactions) override { this->totalTransactions = totalTransactions; }
     
-    const ClientDataSet& getDataSet() const;
-    void insertProcessedData(ClientData clientData);
-    void readyNextDataSet();
+    const ClientDataSet& getDataSet() const override;
+    void insertProcessedData(ClientData clientData) override;
+    void readyNextDataSet() override;
 
 private:
     std::mutex rwMutex; // Read Write Mutual Exclusive flag
