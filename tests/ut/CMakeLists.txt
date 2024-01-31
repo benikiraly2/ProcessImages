@@ -6,6 +6,8 @@ set(
     SOURCES
         main.cpp
         TestClient.cpp
+        TestExceptions.cpp
+        TestServer.cpp
 )
 
 add_executable(
@@ -13,9 +15,6 @@ add_executable(
     ${SOURCES}
 )
 
-# add_executable(example example.cpp)
-
-# target_link_libraries(${MODULE_NAME_UT} gtest_main)
 
 target_link_libraries(
     ${MODULE_NAME_UT}
@@ -29,7 +28,3 @@ target_link_libraries(
 )
 
 add_test(NAME ${MODULE_NAME_UT} COMMAND ${MODULE_NAME_UT})
-
-# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# include(GoogleTest)
-# gtest_discover_tests(${MODULE_NAME_UT})

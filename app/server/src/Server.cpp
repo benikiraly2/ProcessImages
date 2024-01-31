@@ -94,7 +94,7 @@ void Server::startClientReader()
     std::cout << "Server startClientReader thread started\n";
     while (isStarted)
     {
-
+        
     }
     std::cout << "Server startClientReader thread ended\n";
 }

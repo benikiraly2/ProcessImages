@@ -1,13 +1,14 @@
 #pragma once
 
+#include <cstdint>
 #include <set>
 #include <string>
 
 namespace n_clients
 {
 
-using ClientFD = int;
-using TransactionID = int;
+using ClientFD = std::uint32_t;
+using TransactionID = std::uint32_t;
 
 struct ClientData
 {
