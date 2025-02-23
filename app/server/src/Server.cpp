@@ -1,8 +1,6 @@
-#include <cstdint>
 #include <exception>
 #include <functional>
 #include <iostream>
-#include <memory>
 
 #include "exceptions/Exceptions.hpp"
 #include "Messages.hpp"
@@ -20,13 +18,10 @@ namespace n_server
 {
 
 Server::Server()
-{
-    std::cout << "Constructing server\n";
-}
+{}
 
 Server::~Server()
 {
-    std::cout << "Destructing server\n";
     close();
 }
 
@@ -37,9 +32,9 @@ void Server::start()
     auto clientReaderCallback = [this](){clientReader();};
     auto clientWriterCallback = [this](){clientWriter();};
 
-    clientTimers.emplace_back(timer::Timer(clientListenerCallback, 100));
-    clientTimers.emplace_back(timer::Timer(clientReaderCallback, 10));
-    clientTimers.emplace_back(timer::Timer(clientWriterCallback, 10));
+    clientTimers.emplace_back(timer::Timer(clientListenerCallback, 10));
+    clientTimers.emplace_back(timer::Timer(clientReaderCallback, 50));
+    clientTimers.emplace_back(timer::Timer(clientWriterCallback, 100));
 
     for(timer::Timer& timer : clientTimers)
     {
@@ -53,6 +48,18 @@ void Server::start()
         workerThreads.emplace_back(std::thread(&n_workers::Worker::start, &workers[worker_nr]));
     }
 
+    auto controlWorkerDistributionCallback = [this](){controlClientTimer();};
+    auto controlClientTimerCallback = [this](){controlWorkerDistribution();};
+    controlTimers.emplace_back(timer::Timer(controlClientTimerCallback, 1000));
+    controlTimers.emplace_back(timer::Timer(controlWorkerDistributionCallback, 100));
+
+    for(timer::Timer& timer : controlTimers)
+    {
+        timer.start();
+    }
+
+    isStarted = true;
+
     for (std::thread& thread : workerThreads)
     {
         thread.join();
@@ -64,6 +71,11 @@ void Server::start()
 
 void Server::clientListener()
 {
+    if (not isStarted)
+    {
+        return;
+    }
+
     std::cout << "Triggered clientListener\n";
     std::shared_ptr<n_clients::ClientFD> clientFD = std::make_shared<n_clients::ClientFD>(0);
     std::shared_ptr<n_clients::Client> client = std::make_shared<n_clients::Client>(clientFD);
@@ -90,15 +102,45 @@ void Server::clientListener()
 
 void Server::clientReader()
 {
-    std::cout << "Triggered clientReader\n";
+    if (not isStarted)
+    {
+        return;
+    }
     /*
         read from each existing client
+        max bytes read = 8192, where:
+            result[0] = message type (1 byte)
+            result[1] = number of bytes part 1 ( << 8) ---> 0xff00
+            result[2] = number of bytes part 2 ---> 0x00ff
+
+            Leaves actual maximum data bytes to read = 8189
+
+        Convert result[0] to actual Message, see Messages.hpp
     */
+    std::vector<std::uint8_t> buffer;
+    for (auto const& [clientFD, client] : users)
+    {
+        std::uint8_t message = 0;
+        std::uint16_t dataRead = 0;
+        // serverSocket.read(data, clientFD, message, dataRead);
+        serverSocket.read(buffer, clientFD);
+
+        /*
+            Insert in a FIFO struct and let another server thread process it
+            this thread will continue reading from clients
+        */
+        // data.append(buffer.cbegin() + 3, buffer.cend());
+
+        buffer.clear();
+    }
 }
 
 void Server::clientWriter()
 {
-    std::cout << "Triggered clientWriter\n";
+    if (not isStarted)
+    {
+        return;
+    }
     // for (auto const& [clientFD, client] : users)
     // {
     //     const n_clients::ClientDataSet& readyDataSet = client->getDataSet();
@@ -112,6 +154,26 @@ void Server::clientWriter()
     //         client->readyNextDataSet();
     //     }
     // }
+}
+
+void Server::controlClientTimer()
+{
+}
+
+
+void Server::controlWorkerDistribution()
+{
+    static std::uint8_t workerIndex = 0;
+
+    while (not dataQueue.empty())
+    {
+        const std::string& data = dataQueue.front();
+
+        // workers[workerIndex++].add(n_clients::ClientData(data));
+        // workerIndex = workerIndex % NUM_WORKERS;
+
+        dataQueue.pop();
+    }
 }
 
 void Server::close()

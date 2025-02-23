@@ -1,8 +1,5 @@
 #include <cstdint>
 #include <iostream>
-#include <string_view>
-#include <sys/socket.h>
-#include <vector>
 
 #include "exceptions/Exceptions.hpp"
 #include "sockets/Socket.hpp"
@@ -74,23 +71,15 @@ int Socket::accept()
     return connection;
 }
 
-void Socket::read(const int& connection)
+void Socket::read(std::vector<std::uint8_t>& buffer, const int& connection)
 {
-    std::vector<std::uint8_t> buffer(8192);
-    std::string received;
-    int bytesRead = ::recv(connection, &buffer[0], 8192, 0);
-    std::cout << "Bytes read from " << connection << " = " << bytesRead << "\n";
-    if (bytesRead > 0)
-    {
-        received.append(buffer.cbegin(), buffer.cend());
-    }
-    std::cout << "Received " << received << " from " << connection << "\n";
+    int bytesReceived = ::recv(connection, &buffer[0], MAX_BYTES_READ, 0);
+    buffer.resize(bytesReceived);
 }
 
 void Socket::write(const int& connection, std::string data)
 {
     auto bytesSent = ::send(connection, data.c_str(), data.size(), 0);
-    std::cout << "Bytes sent to " << connection << " = " << bytesSent << "\n";
 }
 
 }

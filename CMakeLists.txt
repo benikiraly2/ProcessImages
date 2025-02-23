@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(APP)
 
+find_package(Boost 1.85 REQUIRED COMPONENTS archive serialization)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 set(EXECUTABLE_NAME "APP")
 add_executable(${EXECUTABLE_NAME} main.cpp)
 
@@ -12,6 +17,7 @@ target_link_libraries(
     ${EXECUTABLE_NAME}
     PRIVATE
         app::server
+        -lsctp
 )
 
 add_subdirectory(app)
